@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 24: Mars Mission — Interactive Games</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.png" type="image/png">
+
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+                        body: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        marsbg: '#fbf7f4'
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-marsbg bg-[radial-gradient(#e7d8ce_1px,transparent_1px)] [background-size:22px_22px] text-slate-800 font-body antialiased min-h-screen py-6 px-4 sm:py-10 sm:px-6">
+
+    <!-- Floating Incomplete Warning Toast -->
+    <div
+        id="incomplete-toast"
+        role="alert"
+        aria-live="assertive"
+        class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md bg-rose-600 text-white rounded-2xl shadow-xl shadow-rose-950/30 px-5 py-4 flex items-center justify-between gap-3 border border-rose-400/70"
+    >
+        <div class="flex items-center gap-3">
+            <span class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-lg">
+                ⚠️
+            </span>
+            <div>
+                <p class="font-sans font-extrabold text-sm sm:text-base leading-snug">Oops, ти ще не все виконав</p>
+                <p id="toast-detail" class="text-xs text-rose-100 mt-0.5">Заповни всі підсвічені червоним завдання та спробуй ще раз.</p>
+            </div>
+        </div>
+        <button
+            type="button"
+            id="close-toast-btn"
+            aria-label="Close warning"
+            class="p-2 rounded-xl hover:bg-white/15 transition shrink-0"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Main Centered Container -->
+    <div class="max-w-3xl mx-auto space-y-6 sm:space-y-8">
+
+        <!-- Header Card: Martian Rust & Warm Copper Theme -->
+        <header class="bg-white rounded-3xl shadow-md shadow-red-950/10 border border-red-900/10 overflow-hidden">
+            <div class="relative bg-[linear-gradient(135deg,#450a0a_0%,#991b1b_52%,#d97706_100%)] px-6 py-7 sm:px-8 sm:py-9 text-white overflow-hidden">
+                <!-- Decorative Mars Circles -->
+                <div class="pointer-events-none absolute -top-14 -right-14 w-52 h-52 rounded-full bg-amber-300/15"></div>
+                <div class="pointer-events-none absolute -bottom-20 right-16 w-40 h-40 rounded-full bg-red-300/15"></div>
+
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-amber-100 text-xs font-bold tracking-wider uppercase mb-3">
+                        <span>🎮</span>
+                        <span>Lesson 24 • Interactive Mars Games</span>
+                    </div>
+                    <h1 class="font-sans text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">
+                        🚀 Mars Mission: 5 Mini-Games
+                    </h1>
+                    <p class="text-red-50/95 mt-2 text-sm sm:text-base max-w-xl">
+                        Sort sentences, find the odd word, hunt bugs, decode anagrams, and order the rescue story!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Student Name Input -->
+            <div class="p-6 sm:px-8 sm:py-6 bg-white">
+                <label for="studentName" class="block text-sm font-bold text-slate-800 mb-2">
+                    Your Name / Твоє ім'я <span class="text-rose-600">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="studentName"
+                    name="studentName"
+                    placeholder="Enter your first and last name..."
+                    autocomplete="name"
+                    class="w-full sm:max-w-md px-4 py-3 rounded-xl border border-slate-300 bg-slate-50/70 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-700 focus:border-red-700 focus:bg-white transition"
+                >
+                <p id="name-error" class="hidden mt-2 text-xs font-semibold text-rose-600 flex items-center gap-1.5">
+                    <span>⚠️</span>
+                    <span>Please enter your name before submitting.</span>
+                </p>
+            </div>
+        </header>
+
+        <!-- Collapsible Study Guide -->
+        <section class="bg-white rounded-3xl shadow-sm border border-red-200/90 overflow-hidden">
+            <button
+                type="button"
+                id="help-toggle"
+                aria-expanded="false"
+                aria-controls="help-panel"
+                class="w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-4 text-left bg-red-50/70 hover:bg-red-50 transition cursor-pointer"
+            >
+                <div class="flex items-center gap-3.5">
+                    <span class="w-10 h-10 rounded-2xl bg-red-900 text-amber-200 flex items-center justify-center shrink-0 shadow-sm text-lg">
+                        🛰️
+                    </span>
+                    <div>
+                        <span class="block font-sans text-base sm:text-lg font-extrabold text-slate-900">Mission Help: Words &amp; Passive Voice</span>
+                        <span class="block text-xs sm:text-sm text-slate-600">Click to open or close your quick cheat sheet</span>
+                    </div>
+                </div>
+                <svg id="help-chevron" class="w-5 h-5 text-red-800 shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div id="help-panel" class="hidden border-t border-red-100 p-6 sm:p-8 bg-white space-y-6">
+                <div>
+                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-red-800 mb-3">Mars Vocabulary</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs sm:text-sm">
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">airlock</strong> — two-door exit to space</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">life support system</strong> — oxygen, water &amp; heat</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">space debris</strong> — flying space junk/rocks</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">thruster</strong> — small rocket engine</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">habitat (hab)</strong> — Mars living base</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">to deploy</strong> — to open/release equipment</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">cryosleep</strong> — deep freeze sleep</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">to breach</strong> — to make a hole in a wall</div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong class="text-red-950">crew</strong> — team of astronauts</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                    <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200">
+                        <div class="font-extrabold text-amber-950">Active Voice (Who does the action?)</div>
+                        <div class="mt-1.5 bg-white rounded-lg px-2.5 py-1.5 text-amber-950 font-semibold border border-amber-100">
+                            "The crew repaired the thruster."
+                        </div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-red-50/70 border border-red-200">
+                        <div class="font-extrabold text-red-950">Passive Voice (be + V3)</div>
+                        <div class="mt-1.5 bg-white rounded-lg px-2.5 py-1.5 text-red-950 font-semibold border border-red-100">
+                            "The thruster <u>was repaired</u> (is / was / will be + V3)."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Homework Form -->
+        <form id="homework-form" class="space-y-6 sm:space-y-8" novalidate>
+
+            <!-- ========================================== -->
+            <!-- GAME 1: GROUP SORT — ACTIVE VS PASSIVE     -->
+            <!-- ========================================== -->
+            <section class="bg-white rounded-3xl shadow-sm border border-red-900/10 p-6 sm:p-8 space-y-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex-1 min-w-[220px]">
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-700">Game 1 of 5 • Group Sort</span>
+                        <h2 class="font-sans text-xl font-extrabold text-slate-900 mt-0.5">Active or Passive?</h2>
+                        <p class="text-sm text-slate-600 mt-1">Sort each sentence into the right box: <strong>Active Voice</strong> or <strong>Passive Voice</strong>. Click a button on each card to move it.</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            id="g1-reset-btn"
+                            class="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition"
+                        >
+                            Reset
+                        </button>
+                        <button
+                            type="button"
+                            data-hint-target="hint-game-1"
+                            class="hint-toggle-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-100 text-amber-950 hover:bg-amber-200 active:scale-95 transition"
+                        >
+                            <span>💡</span>
+                            <span>Hint</span>
+                        </button>
+                        <span id="g1-score-badge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-900"></span>
+                    </div>
+                </div>
+
+                <!-- Ukrainian Hint -->
+                <div id="hint-game-1" class="hidden rounded-2xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm text-amber-950 flex items-start gap-2.5">
+                    <span class="text-base shrink-0">💡</span>
+                    <p>Розсортуй речення у два кошики: <strong>Active</strong> (хтось сам виконує дію) або <strong>Passive</strong> (дія виконується над чимось: <em>is / was / were / will be + V3</em>). Натисни на речення в кошику, щоб повернути його назад.</p>
+                </div>
+
+                <!-- Unsorted Cards Tray -->
+                <div id="g1-tray-wrap" class="rounded-2xl bg-slate-50 border-2 border-dashed border-slate-300 p-4 space-y-2.5 transition-all">
+                    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Sentences to Sort</div>
+                    <div id="g1-tray" class="space-y-2.5"></div>
+                </div>
+
+                <!-- Two Sorting Buckets -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="rounded-2xl bg-amber-50/70 border-2 border-amber-300 p-4 space-y-2.5 min-h-[150px]">
+                        <div class="flex items-center justify-between">
+                            <span class="font-sans text-sm font-extrabold text-amber-950">⚡ Active Voice</span>
+                            <span id="g1-count-active" class="px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-950 text-xs font-bold">0</span>
+                        </div>
+                        <div id="g1-bucket-active" class="space-y-2"></div>
+                    </div>
+
+                    <div class="rounded-2xl bg-red-50/70 border-2 border-red-300 p-4 space-y-2.5 min-h-[150px]">
+                        <div class="flex items-center justify-between">
+                            <span class="font-sans text-sm font-extrabold text-red-950">🛰️ Passive Voice</span>
+                            <span id="g1-count-passive" class="px-2 py-0.5 rounded-full bg-red-200/80 text-red-950 text-xs font-bold">0</span>
+                        </div>
+                        <div id="g1-bucket-passive" class="space-y-2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- GAME 2: ODD ONE OUT (5 PTS)                -->
+            <!-- ========================================== -->
+            <section class="bg-white rounded-3xl shadow-sm border border-red-900/10 p-6 sm:p-8 space-y-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex-1 min-w-[220px]">
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-700">Game 2 of 5 • Odd One Out</span>
+                        <h2 class="font-sans text-xl font-extrabold text-slate-900 mt-0.5">Space Radar: Find the Odd One Out</h2>
+                        <p class="text-sm text-slate-600 mt-1">In each row of 4 items, click the <strong>ONE</strong> word or phrase that does NOT belong in the group.</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            data-hint-target="hint-game-2"
+                            class="hint-toggle-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-100 text-amber-950 hover:bg-amber-200 active:scale-95 transition"
+                        >
+                            <span>💡</span>
+                            <span>Hint</span>
+                        </button>
+                        <span id="g2-score-badge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-900"></span>
+                    </div>
+                </div>
+
+                <!-- Ukrainian Hint -->
+                <div id="hint-game-2" class="hidden rounded-2xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm text-amber-950 flex items-start gap-2.5">
+                    <span class="text-base shrink-0">💡</span>
+                    <p>У кожному рядку є 4 слова або фрази — 3 з них об'єднані спільною темою чи граматикою, а 1 зайве. Натисни на <strong>зайве</strong> слово.</p>
+                </div>
+
+                <div id="g2-container" class="space-y-3.5"></div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- GAME 3: BUG HUNTER — CLICK THE MISTAKE     -->
+            <!-- ========================================== -->
+            <section class="bg-white rounded-3xl shadow-sm border border-red-900/10 p-6 sm:p-8 space-y-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex-1 min-w-[220px]">
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-700">Game 3 of 5 • Bug Hunter</span>
+                        <h2 class="font-sans text-xl font-extrabold text-slate-900 mt-0.5">Click the Wrong Word!</h2>
+                        <p class="text-sm text-slate-600 mt-1">Our Mars computer has 5 bugs! Click the <strong>ONE wrong word</strong> in each sentence.</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            data-hint-target="hint-game-3"
+                            class="hint-toggle-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-100 text-amber-950 hover:bg-amber-200 active:scale-95 transition"
+                        >
+                            <span>💡</span>
+                            <span>Hint</span>
+                        </button>
+                        <span id="g3-score-badge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-900"></span>
+                    </div>
+                </div>
+
+                <!-- Ukrainian Hint -->
+                <div id="hint-game-3" class="hidden rounded-2xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm text-amber-950 flex items-start gap-2.5">
+                    <span class="text-base shrink-0">💡</span>
+                    <p>У кожному реченні захована рівно одна помилка (граматична або за змістом). Просто натисни на це неправильне слово — нічого друкувати не потрібно!</p>
+                </div>
+
+                <div id="g3-container" class="space-y-4"></div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- GAME 4: SECRET CODE ANAGRAMS (5 PTS)       -->
+            <!-- ========================================== -->
+            <section class="bg-white rounded-3xl shadow-sm border border-red-900/10 p-6 sm:p-8 space-y-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex-1 min-w-[220px]">
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-700">Game 4 of 5 • Anagram Decoder</span>
+                        <h2 class="font-sans text-xl font-extrabold text-slate-900 mt-0.5">Decode the Mars Words</h2>
+                        <p class="text-sm text-slate-600 mt-1">Read the clue and click the letters in the right order to spell the secret space word.</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            data-hint-target="hint-game-4"
+                            class="hint-toggle-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-100 text-amber-950 hover:bg-amber-200 active:scale-95 transition"
+                        >
+                            <span>💡</span>
+                            <span>Hint</span>
+                        </button>
+                        <span id="g4-score-badge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-900"></span>
+                    </div>
+                </div>
+
+                <!-- Ukrainian Hint -->
+                <div id="hint-game-4" class="hidden rounded-2xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm text-amber-950 flex items-start gap-2.5">
+                    <span class="text-base shrink-0">💡</span>
+                    <p>Прочитай підказку та натискай на літери у правильному порядку, щоб розшифрувати слово з уроку. Натисни на літеру у відповіді, щоб прибрати її назад.</p>
+                </div>
+
+                <div id="g4-container" class="space-y-4"></div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- GAME 5: EMERGENCY TIMELINE (4 PTS)         -->
+            <!-- ========================================== -->
+            <section class="bg-white rounded-3xl shadow-sm border border-red-900/10 p-6 sm:p-8 space-y-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex-1 min-w-[220px]">
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-700">Game 5 of 5 • Sequence Order</span>
+                        <h2 class="font-sans text-xl font-extrabold text-slate-900 mt-0.5">Emergency Timeline (1 → 4)</h2>
+                        <p class="text-sm text-slate-600 mt-1">Put the 4 events of the spaceship rescue in the right order. Click the events from <strong>First (1)</strong> to <strong>Last (4)</strong>.</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            id="g5-reset-btn"
+                            class="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition"
+                        >
+                            Reset
+                        </button>
+                        <button
+                            type="button"
+                            data-hint-target="hint-game-5"
+                            class="hint-toggle-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-100 text-amber-950 hover:bg-amber-200 active:scale-95 transition"
+                        >
+                            <span>💡</span>
+                            <span>Hint</span>
+                        </button>
+                        <span id="g5-score-badge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-900"></span>
+                    </div>
+                </div>
+
+                <!-- Ukrainian Hint -->
+                <div id="hint-game-5" class="hidden rounded-2xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm text-amber-950 flex items-start gap-2.5">
+                    <span class="text-base shrink-0">💡</span>
+                    <p>Розстав 4 події космічної аварії в логічному порядку: натискай на картки від першої (1) до останньої (4). Натисни на пронумеровану картку, щоб скасувати її номер.</p>
+                </div>
+
+                <!-- Ordered Timeline Display + Pool -->
+                <div id="g5-wrap" class="space-y-3 rounded-2xl transition-all">
+                    <div id="g5-slots" class="space-y-2.5"></div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- SUBMISSION & RESULTS SECTION               -->
+            <!-- ========================================== -->
+            <section class="bg-white rounded-3xl shadow-sm border border-red-900/10 p-6 sm:p-8 space-y-5">
+                <!-- Inline Incomplete Warning Banner -->
+                <div id="inline-incomplete-banner" class="hidden rounded-2xl bg-rose-50 border-2 border-rose-400 p-4 flex items-center gap-3 text-rose-900">
+                    <span class="text-xl shrink-0">⚠️</span>
+                    <div>
+                        <p class="font-sans font-extrabold text-sm sm:text-base">Oops, ти ще не все виконав</p>
+                        <p id="inline-incomplete-detail" class="text-xs sm:text-sm text-rose-700 mt-0.5"></p>
+                    </div>
+                </div>
+
+                <!-- Required Ukrainian Warning Above Submit Button -->
+                <div class="rounded-2xl bg-amber-50 border border-amber-300/90 p-4 flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm sm:text-base font-semibold text-amber-950">
+                        Перевір точність своїх відповідей ще раз перед надсиланням вчителю
+                    </p>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    id="submit-btn"
+                    class="w-full py-4 px-6 rounded-2xl bg-[linear-gradient(135deg,#7f1d1d_0%,#b91c1c_55%,#d97706_100%)] hover:brightness-110 active:scale-[0.99] text-white font-sans font-bold text-base sm:text-lg shadow-lg shadow-red-950/20 transition flex items-center justify-center gap-2.5 disabled:opacity-65 disabled:cursor-not-allowed"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                    <span id="submit-btn-text">Надіслати вчителю</span>
+                </button>
+
+                <!-- Results Summary Card -->
+                <div id="result-banner" class="hidden rounded-2xl p-5 sm:p-6 border transition-all space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h3 id="result-title" class="font-sans text-lg font-extrabold"></h3>
+                            <p id="result-message" class="text-sm mt-1"></p>
+                        </div>
+                        <div class="shrink-0 bg-white rounded-2xl px-5 py-3 text-center border border-black/10 shadow-sm">
+                            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Score</div>
+                            <div id="result-score" class="font-sans text-2xl font-extrabold text-red-900 mt-0.5">0 / 25</div>
+                            <div id="result-percent" class="text-xs font-bold text-amber-600">0%</div>
+                        </div>
+                    </div>
+
+                    <div id="result-breakdown" class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-3 border-t border-black/10 text-xs"></div>
+                </div>
+            </section>
+
+        </form>
+
+        <footer class="text-center text-xs text-slate-400 pb-6">
+            Lesson 24: Mars Mission — Interactive Games
+        </footer>
+    </div>
+
+    <script>
+        // ==========================================
+        // TELEGRAM BOT CONFIGURATION
+        // ==========================================
+        const BOT_TOKEN = "9000524592:AAFGz0I36Xc4XS2Y4qyNMfQzaxaWZMkLxGU";
+        const CHAT_ID = "749833850";
+
+        // ==========================================
+        // 5 BRAND-NEW GAME DATASETS (25 PTS TOTAL)
+        // ==========================================
+
+        // Game 1: Group Sort — Active vs Passive (6 pts)
+        const g1Data = [
+            { id: 1, text: "The crew repaired the left thruster.", category: "active" },
+            { id: 2, text: "Fresh oxygen is produced every hour.", category: "passive" },
+            { id: 3, text: "Space debris breached the outer wall.", category: "active" },
+            { id: 4, text: "The solar panels will be deployed tomorrow.", category: "passive" },
+            { id: 5, text: "The astronauts slept in cryosleep pods.", category: "active" },
+            { id: 6, text: "Both airlock doors were closed by the computer.", category: "passive" }
+        ];
+
+        // Game 2: Odd One Out (5 pts)
+        const g2Data = [
+            {
+                id: 1,
+                items: ["airlock", "habitat", "thruster", "cryosleep"],
+                odd: "cryosleep",
+                reason: "cryosleep is a deep sleep, not a part of a ship or base."
+            },
+            {
+                id: 2,
+                items: ["breach", "deploy", "survive", "crew"],
+                odd: "crew",
+                reason: "crew is a noun (people); the other three are verbs."
+            },
+            {
+                id: 3,
+                items: ["is made", "was breached", "will be deployed", "repaired"],
+                odd: "repaired",
+                reason: "repaired is Active Voice; the other three are Passive Voice."
+            },
+            {
+                id: 4,
+                items: ["oxygen", "water", "heat", "space debris"],
+                odd: "space debris",
+                reason: "space debris is dangerous junk; the others come from the life support system."
+            },
+            {
+                id: 5,
+                items: ["astronaut", "captain", "crew", "parachute"],
+                odd: "parachute",
+                reason: "parachute is equipment; the other three are people."
+            }
+        ];
+
+        // Game 3: Bug Hunter — Click the 1 Wrong Word (5 pts)
+        const g3Data = [
+            {
+                id: 1,
+                tokens: ["The", "outer", "wall", "was", "breaching", "by", "a", "rock."],
+                wrongIdx: 4,
+                fix: "breached (Passive: was + V3)"
+            },
+            {
+                id: 2,
+                tokens: ["Fresh", "oxygen", "are", "produced", "by", "the", "life", "support", "system."],
+                wrongIdx: 2,
+                fix: "is (oxygen is uncountable → is produced)"
+            },
+            {
+                id: 3,
+                tokens: ["Tomorrow,", "the", "solar", "panels", "will", "is", "deployed", "outside."],
+                wrongIdx: 5,
+                fix: "be (Future Passive: will be + V3)"
+            },
+            {
+                id: 4,
+                tokens: ["Astronauts", "sleep", "in", "airlock", "for", "hundreds", "of", "years."],
+                wrongIdx: 3,
+                fix: "cryosleep"
+            },
+            {
+                id: 5,
+                tokens: ["The", "captain", "fired", "the", "habitat", "to", "turn", "the", "ship", "left."],
+                wrongIdx: 4,
+                fix: "thruster"
+            }
+        ];
+
+        // Game 4: Secret Code Anagrams (5 pts)
+        const g4Data = [
+            { id: 1, word: "CREW", clue: "The team of astronauts working on the spaceship." },
+            { id: 2, word: "DEPLOY", clue: "To open up or release equipment (like a parachute)." },
+            { id: 3, word: "BREACH", clue: "To make a dangerous hole in the ship's wall." },
+            { id: 4, word: "AIRLOCK", clue: "A small room with two doors to step outside into space." },
+            { id: 5, word: "HABITAT", clue: "The base building on Mars where colonists live." }
+        ];
+
+        // Game 5: Emergency Timeline — Order 1 to 4 (4 pts)
+        const g5Data = [
+            { id: 1, step: 1, text: "A fast piece of space debris hits and breaches the ship's wall." },
+            { id: 2, step: 2, text: "The red alarm rings and wakes the crew up from cryosleep." },
+            { id: 3, step: 3, text: "The captain fires the thrusters to move the ship away from danger." },
+            { id: 4, step: 4, text: "An astronaut enters the airlock to go outside and fix the hole." }
+        ];
+
+        // ==========================================
+        // APPLICATION STATE
+        // ==========================================
+        let g1Shuffled = [];
+        const g1Placed = {}; // id -> "active" | "passive" | null
+        let g1Graded = null;
+
+        const g2Selected = {}; // rowId -> itemString
+
+        const g3Selected = {}; // qId -> tokenIndex
+
+        const g4State = {}; // id -> { initial: [{id, ch}], bank: [...], answer: [...] }
+
+        let g5Shuffled = [];
+        let g5Order = []; // array of event IDs in student's chosen order (length 0..4)
+        let g5Graded = null;
+
+        let isSubmittedAndLocked = false;
+        let lastPreparedReport = null;
+        let toastTimer = null;
+
+        // ==========================================
+        // HELPER UTILITIES
+        // ==========================================
+
+        function shuffleArray(list) {
+            const copy = list.slice();
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const tmp = copy[i];
+                copy[i] = copy[j];
+                copy[j] = tmp;
+            }
+            return copy;
+        }
+
+        function shuffleLettersNotIdentical(word) {
+            const items = word.split("").map((ch, idx) => ({ id: "ch-" + idx, ch: ch }));
+            for (let attempt = 0; attempt < 20; attempt++) {
+                const shuffled = shuffleArray(items);
+                if (shuffled.map((x) => x.ch).join("") !== word) {
+                    return shuffled;
+                }
+            }
+            return items;
+        }
+
+        function markMissing(el) {
+            el.classList.add("border-rose-500", "ring-2", "ring-rose-300", "bg-rose-50/70");
+        }
+
+        function clearMissing(el) {
+            el.classList.remove("border-rose-500", "ring-2", "ring-rose-300", "bg-rose-50/70");
+        }
+
+        function showIncompleteWarning(missingCount) {
+            const detailMsg = "Залишилось завершити: " + missingCount + " завдань/пунктів.";
+            const toast = document.getElementById("incomplete-toast");
+            const toastDetail = document.getElementById("toast-detail");
+            const inlineBanner = document.getElementById("inline-incomplete-banner");
+            const inlineDetail = document.getElementById("inline-incomplete-detail");
+
+            toastDetail.textContent = detailMsg;
+            inlineDetail.textContent = detailMsg;
+            toast.classList.remove("hidden");
+            inlineBanner.classList.remove("hidden");
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 5000);
+        }
+
+        function hideIncompleteWarning() {
+            document.getElementById("incomplete-toast").classList.add("hidden");
+            document.getElementById("inline-incomplete-banner").classList.add("hidden");
+        }
+
+        function showScoreBadge(elId, score, total) {
+            const badge = document.getElementById(elId);
+            if (!badge) return;
+            badge.textContent = score + " / " + total;
+            badge.classList.remove("hidden");
+        }
+
+        function setCardGradeStyle(card, isCorrect) {
+            card.classList.remove(
+                "border-slate-200", "bg-slate-50/60",
+                "border-rose-500", "ring-2", "ring-rose-300", "bg-rose-50/70",
+                "border-emerald-500", "bg-emerald-50/60"
+            );
+            if (isCorrect) {
+                card.classList.add("border-emerald-500", "bg-emerald-50/60");
+            } else {
+                card.classList.add("border-rose-500", "bg-rose-50/60");
+            }
+        }
+
+        // ==========================================
+        // GAME 1: GROUP SORT (ACTIVE VS PASSIVE)
+        // ==========================================
+
+        function renderGame1() {
+            const tray = document.getElementById("g1-tray");
+            const activeBucket = document.getElementById("g1-bucket-active");
+            const passiveBucket = document.getElementById("g1-bucket-passive");
+            tray.innerHTML = "";
+            activeBucket.innerHTML = "";
+            passiveBucket.innerHTML = "";
+
+            let unsortedCount = 0;
+            let activeCount = 0;
+            let passiveCount = 0;
+
+            g1Shuffled.forEach((item) => {
+                const target = g1Placed[item.id];
+
+                if (!target) {
+                    unsortedCount++;
+                    const row = document.createElement("div");
+                    row.className = "p-3.5 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5";
+
+                    const text = document.createElement("span");
+                    text.className = "text-sm font-medium text-slate-800 leading-snug";
+                    text.textContent = item.text;
+
+                    const btns = document.createElement("div");
+                    btns.className = "flex items-center gap-2 shrink-0";
+
+                    const btnA = document.createElement("button");
+                    btnA.type = "button";
+                    btnA.className = "g1-action-btn flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 text-xs font-extrabold transition active:scale-95";
+                    btnA.textContent = "⚡ Active";
+                    btnA.addEventListener("click", () => {
+                        if (isSubmittedAndLocked) return;
+                        g1Placed[item.id] = "active";
+                        clearMissing(document.getElementById("g1-tray-wrap"));
+                        renderGame1();
+                    });
+
+                    const btnP = document.createElement("button");
+                    btnP.type = "button";
+                    btnP.className = "g1-action-btn flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-950 text-xs font-extrabold transition active:scale-95";
+                    btnP.textContent = "🛰️ Passive";
+                    btnP.addEventListener("click", () => {
+                        if (isSubmittedAndLocked) return;
+                        g1Placed[item.id] = "passive";
+                        clearMissing(document.getElementById("g1-tray-wrap"));
+                        renderGame1();
+                    });
+
+                    btns.appendChild(btnA);
+                    btns.appendChild(btnP);
+                    row.appendChild(text);
+                    row.appendChild(btns);
+                    tray.appendChild(row);
+                } else {
+                    if (target === "active") activeCount++;
+                    else passiveCount++;
+
+                    const chip = document.createElement("button");
+                    chip.type = "button";
+                    const grade = g1Graded ? g1Graded[item.id] : null;
+                    let cls = "g1-placed-btn w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-semibold transition flex items-start justify-between gap-2 ";
+                    if (grade === true) {
+                        cls += "border-emerald-500 bg-emerald-50 text-emerald-950";
+                    } else if (grade === false) {
+                        cls += "border-rose-500 bg-rose-50 text-rose-950";
+                    } else {
+                        cls += "border-slate-200 bg-white hover:bg-slate-50 text-slate-800 shadow-sm";
+                    }
+                    chip.className = cls;
+
+                    const span = document.createElement("span");
+                    span.textContent = item.text;
+                    chip.appendChild(span);
+
+                    const icon = document.createElement("span");
+                    icon.className = "shrink-0 text-xs font-bold";
+                    if (grade === true) icon.textContent = "✓";
+                    else if (grade === false) icon.textContent = "✗";
+                    else icon.textContent = "↩";
+                    chip.appendChild(icon);
+
+                    chip.addEventListener("click", () => {
+                        if (isSubmittedAndLocked) return;
+                        g1Placed[item.id] = null;
+                        renderGame1();
+                    });
+
+                    if (target === "active") activeBucket.appendChild(chip);
+                    else passiveBucket.appendChild(chip);
+                }
+            });
+
+            if (unsortedCount === 0) {
+                const done = document.createElement("p");
+                done.className = "text-xs sm:text-sm font-semibold text-emerald-700";
+                done.textContent = "All sentences sorted! ✓ (Click any sentence in a box to move it back)";
+                tray.appendChild(done);
+            }
+
+            if (activeCount === 0) {
+                const emptyA = document.createElement("p");
+                emptyA.className = "text-xs text-amber-800/60 italic";
+                emptyA.textContent = "Active sentences will appear here...";
+                activeBucket.appendChild(emptyA);
+            }
+
+            if (passiveCount === 0) {
+                const emptyP = document.createElement("p");
+                emptyP.className = "text-xs text-red-800/60 italic";
+                emptyP.textContent = "Passive sentences will appear here...";
+                passiveBucket.appendChild(emptyP);
+            }
+
+            document.getElementById("g1-count-active").textContent = String(activeCount);
+            document.getElementById("g1-count-passive").textContent = String(passiveCount);
+        }
+
+        // ==========================================
+        // GAME 2: ODD ONE OUT
+        // ==========================================
+
+        function renderGame2() {
+            const container = document.getElementById("g2-container");
+            container.innerHTML = "";
+
+            g2Data.forEach((row) => {
+                const card = document.createElement("div");
+                card.id = "g2-card-" + row.id;
+                card.className = "p-4 rounded-2xl border border-slate-200 bg-slate-50/60 transition-all space-y-2.5";
+
+                const title = document.createElement("div");
+                title.className = "text-xs font-bold uppercase tracking-wider text-slate-500";
+                title.textContent = "Row " + row.id + " — Click the odd one out";
+                card.appendChild(title);
+
+                const grid = document.createElement("div");
+                grid.className = "grid grid-cols-2 sm:grid-cols-4 gap-2";
+
+                row.items.forEach((word) => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.dataset.word = word;
+                    btn.className = "g2-btn px-3 py-3 rounded-xl border border-slate-200 bg-white hover:border-red-500 hover:bg-red-50/40 text-sm font-bold text-slate-800 transition active:scale-95 text-center";
+                    btn.textContent = word;
+                    btn.addEventListener("click", () => {
+                        if (isSubmittedAndLocked) return;
+                        g2Selected[row.id] = word;
+                        clearMissing(card);
+                        card.querySelectorAll(".g2-btn").forEach((b) => {
+                            if (b.dataset.word === word) {
+                                b.className = "g2-btn px-3 py-3 rounded-xl border-2 border-red-800 bg-red-800 text-white text-sm font-bold shadow-sm transition text-center";
+                            } else {
+                                b.className = "g2-btn px-3 py-3 rounded-xl border border-slate-200 bg-white hover:border-red-500 hover:bg-red-50/40 text-sm font-bold text-slate-800 transition active:scale-95 text-center";
+                            }
+                        });
+                    });
+                    grid.appendChild(btn);
+                });
+
+                card.appendChild(grid);
+
+                const fb = document.createElement("p");
+                fb.id = "g2-fb-" + row.id;
+                fb.className = "hidden text-xs font-bold";
+                card.appendChild(fb);
+
+                container.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // GAME 3: BUG HUNTER (CLICK WRONG WORD)
+        // ==========================================
+
+        function renderGame3() {
+            const container = document.getElementById("g3-container");
+            container.innerHTML = "";
+
+            g3Data.forEach((item) => {
+                const card = document.createElement("div");
+                card.id = "g3-card-" + item.id;
+                card.className = "p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 transition-all space-y-3";
+
+                const label = document.createElement("div");
+                label.className = "text-xs font-bold uppercase tracking-wider text-slate-500";
+                label.textContent = "Bug #" + item.id + " — Tap the 1 wrong word";
+                card.appendChild(label);
+
+                const tokensWrap = document.createElement("div");
+                tokensWrap.className = "flex flex-wrap items-center gap-1.5";
+
+                item.tokens.forEach((token, idx) => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.dataset.idx = String(idx);
+                    btn.className = "g3-token px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:bg-amber-50 text-sm sm:text-base font-semibold text-slate-800 transition active:scale-95";
+                    btn.textContent = token;
+                    btn.addEventListener("click", () => {
+                        if (isSubmittedAndLocked) return;
+                        g3Selected[item.id] = idx;
+                        clearMissing(card);
+                        card.querySelectorAll(".g3-token").forEach((t) => {
+                            if (Number(t.dataset.idx) === idx) {
+                                t.className = "g3-token px-3 py-1.5 rounded-xl border-2 border-red-700 bg-red-700 text-white text-sm sm:text-base font-bold shadow-sm transition";
+                            } else {
+                                t.className = "g3-token px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:bg-amber-50 text-sm sm:text-base font-semibold text-slate-800 transition active:scale-95";
+                            }
+                        });
+                    });
+                    tokensWrap.appendChild(btn);
+                });
+
+                card.appendChild(tokensWrap);
+
+                const fb = document.createElement("p");
+                fb.id = "g3-fb-" + item.id;
+                fb.className = "hidden text-xs font-bold";
+                card.appendChild(fb);
+
+                container.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // GAME 4: ANAGRAM DECODER
+        // ==========================================
+
+        function renderGame4() {
+            const container = document.getElementById("g4-container");
+            container.innerHTML = "";
+
+            g4Data.forEach((item) => {
+                const initial = shuffleLettersNotIdentical(item.word);
+                g4State[item.id] = {
+                    initial: initial,
+                    bank: initial.slice(),
+                    answer: []
+                };
+
+                const card = document.createElement("div");
+                card.id = "g4-card-" + item.id;
+                card.className = "p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 transition-all space-y-3";
+
+                const header = document.createElement("div");
+                header.className = "flex items-start justify-between gap-3";
+
+                const clue = document.createElement("p");
+                clue.className = "text-sm font-semibold text-slate-800";
+                clue.textContent = item.id + ". Clue: " + item.clue;
+
+                const resetBtn = document.createElement("button");
+                resetBtn.type = "button";
+                resetBtn.className = "g4-reset-btn shrink-0 text-xs font-bold text-slate-500 hover:text-red-800 px-2.5 py-1 rounded-lg hover:bg-red-100 transition";
+                resetBtn.textContent = "Reset";
+                resetBtn.addEventListener("click", () => {
+                    if (isSubmittedAndLocked) return;
+                    g4State[item.id].bank = g4State[item.id].initial.slice();
+                    g4State[item.id].answer = [];
+                    clearMissing(card);
+                    updateGame4UI(item.id);
+                });
+
+                header.appendChild(clue);
+                header.appendChild(resetBtn);
+
+                const answerSlots = document.createElement("div");
+                answerSlots.id = "g4-answer-" + item.id;
+                answerSlots.className = "min-h-[48px] p-2 rounded-xl border-2 border-dashed border-amber-400 bg-white flex flex-wrap items-center gap-1.5";
+
+                const letterBank = document.createElement("div");
+                letterBank.id = "g4-bank-" + item.id;
+                letterBank.className = "flex flex-wrap items-center gap-1.5";
+
+                const fb = document.createElement("p");
+                fb.id = "g4-fb-" + item.id;
+                fb.className = "hidden text-xs font-bold";
+
+                card.appendChild(header);
+                card.appendChild(answerSlots);
+                card.appendChild(letterBank);
+                card.appendChild(fb);
+                container.appendChild(card);
+
+                updateGame4UI(item.id);
+            });
+        }
+
+        function updateGame4UI(itemId) {
+            const state = g4State[itemId];
+            const answerEl = document.getElementById("g4-answer-" + itemId);
+            const bankEl = document.getElementById("g4-bank-" + itemId);
+            const card = document.getElementById("g4-card-" + itemId);
+
+            answerEl.innerHTML = "";
+            bankEl.innerHTML = "";
+
+            if (state.answer.length === 0) {
+                const ph = document.createElement("span");
+                ph.className = "text-xs text-slate-400 px-1 select-none";
+                ph.textContent = "Click letters below to decode...";
+                answerEl.appendChild(ph);
+            } else {
+                state.answer.forEach((tile) => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "g4-tile w-10 h-10 rounded-xl bg-red-800 hover:bg-red-900 text-white font-sans font-extrabold text-base shadow-sm transition active:scale-95";
+                    btn.textContent = tile.ch;
+                    btn.addEventListener("click", () => {
+                        if (isSubmittedAndLocked) return;
+                        state.answer = state.answer.filter((t) => t.id !== tile.id);
+                        state.bank.push(tile);
+                        updateGame4UI(itemId);
+                    });
+                    answerEl.appendChild(btn);
+                });
+            }
+
+            if (state.bank.length === 0) {
+                clearMissing(card);
+                const done = document.createElement("span");
+                done.className = "text-xs font-semibold text-emerald-700 select-none";
+                done.textContent = "Word decoded ✓ (click any letter above to undo)";
+                bankEl.appendChild(done);
+            } else {
+                state.bank.forEach((tile) => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "g4-tile w-10 h-10 rounded-xl bg-white hover:bg-amber-50 border-2 border-slate-300 hover:border-amber-500 text-slate-900 font-sans font-extrabold text-base shadow-sm transition active:scale-95";
+                    btn.textContent = tile.ch;
+                    btn.addEventListener("click", () => {
+                        if (isSubmittedAndLocked) return;
+                        state.bank = state.bank.filter((t) => t.id !== tile.id);
+                        state.answer.push(tile);
+                        updateGame4UI(itemId);
+                    });
+                    bankEl.appendChild(btn);
+                });
+            }
+        }
+
+        // ==========================================
+        // GAME 5: EMERGENCY TIMELINE (ORDER 1 → 4)
+        // ==========================================
+
+        function renderGame5() {
+            const container = document.getElementById("g5-slots");
+            container.innerHTML = "";
+
+            g5Shuffled.forEach((item) => {
+                const posIdx = g5Order.indexOf(item.id); // 0..3 or -1
+                const stepNum = posIdx !== -1 ? posIdx + 1 : null;
+                const grade = g5Graded ? g5Graded[item.id] : null;
+
+                const btn = document.createElement("button");
+                btn.type = "button";
+
+                let cls = "g5-card w-full text-left p-4 rounded-2xl border transition flex items-center gap-3.5 ";
+                if (grade === true) {
+                    cls += "border-emerald-500 bg-emerald-50 text-emerald-950";
+                } else if (grade === false) {
+                    cls += "border-rose-500 bg-rose-50 text-rose-950";
+                } else if (stepNum !== null) {
+                    cls += "border-2 border-red-800 bg-red-50/70 text-slate-900 shadow-sm";
+                } else {
+                    cls += "border-slate-200 bg-white hover:border-amber-500 hover:bg-amber-50/40 text-slate-800";
+                }
+                btn.className = cls;
+
+                const badge = document.createElement("span");
+                if (grade === true) {
+                    badge.className = "w-9 h-9 rounded-xl bg-emerald-600 text-white font-sans font-extrabold text-sm flex items-center justify-center shrink-0";
+                    badge.textContent = String(stepNum);
+                } else if (grade === false) {
+                    badge.className = "w-9 h-9 rounded-xl bg-rose-600 text-white font-sans font-extrabold text-sm flex items-center justify-center shrink-0";
+                    badge.textContent = stepNum + "→" + item.step;
+                } else if (stepNum !== null) {
+                    badge.className = "w-9 h-9 rounded-xl bg-red-800 text-white font-sans font-extrabold text-base flex items-center justify-center shrink-0 shadow-sm";
+                    badge.textContent = String(stepNum);
+                } else {
+                    badge.className = "w-9 h-9 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-400 font-sans font-bold text-sm flex items-center justify-center shrink-0";
+                    badge.textContent = "?";
+                }
+
+                const text = document.createElement("span");
+                text.className = "text-sm sm:text-base font-semibold leading-snug";
+                text.textContent = item.text;
+
+                btn.appendChild(badge);
+                btn.appendChild(text);
+
+                btn.addEventListener("click", () => {
+                    if (isSubmittedAndLocked) return;
+                    clearMissing(document.getElementById("g5-wrap"));
+                    const idx = g5Order.indexOf(item.id);
+                    if (idx !== -1) {
+                        g5Order.splice(idx, 1);
+                    } else {
+                        g5Order.push(item.id);
+                    }
+                    renderGame5();
+                });
+
+                container.appendChild(btn);
+            });
+        }
+
+        // ==========================================
+        // STRICT VALIDATION (ALL GAMES REQUIRED)
+        // ==========================================
+
+        function validateAll() {
+            const missingElements = [];
+
+            // 1. Student Name
+            const nameInput = document.getElementById("studentName");
+            const nameError = document.getElementById("name-error");
+            clearMissing(nameInput);
+            nameError.classList.add("hidden");
+            if (!nameInput.value.trim()) {
+                markMissing(nameInput);
+                nameError.classList.remove("hidden");
+                missingElements.push(nameInput);
+            }
+
+            // 2. Game 1: All 6 sentences must be sorted
+            const g1Wrap = document.getElementById("g1-tray-wrap");
+            clearMissing(g1Wrap);
+            const g1Unsorted = g1Data.filter((item) => !g1Placed[item.id]).length;
+            if (g1Unsorted > 0) {
+                markMissing(g1Wrap);
+                missingElements.push(g1Wrap);
+            }
+
+            // 3. Game 2: All 5 Odd One Out rows
+            g2Data.forEach((row) => {
+                const card = document.getElementById("g2-card-" + row.id);
+                clearMissing(card);
+                if (!g2Selected[row.id]) {
+                    markMissing(card);
+                    missingElements.push(card);
+                }
+            });
+
+            // 4. Game 3: All 5 Bug Hunter sentences
+            g3Data.forEach((item) => {
+                const card = document.getElementById("g3-card-" + item.id);
+                clearMissing(card);
+                if (g3Selected[item.id] === undefined) {
+                    markMissing(card);
+                    missingElements.push(card);
+                }
+            });
+
+            // 5. Game 4: All 5 Anagrams (0 letters left in bank)
+            g4Data.forEach((item) => {
+                const card = document.getElementById("g4-card-" + item.id);
+                clearMissing(card);
+                if (g4State[item.id].bank.length > 0) {
+                    markMissing(card);
+                    missingElements.push(card);
+                }
+            });
+
+            // 6. Game 5: All 4 Timeline events numbered
+            const g5Wrap = document.getElementById("g5-wrap");
+            clearMissing(g5Wrap);
+            if (g5Order.length < g5Data.length) {
+                markMissing(g5Wrap);
+                missingElements.push(g5Wrap);
+            }
+
+            if (missingElements.length > 0) {
+                showIncompleteWarning(missingElements.length);
+                const firstMissing = missingElements[0];
+                firstMissing.scrollIntoView({ behavior: "smooth", block: "center" });
+                if (firstMissing.tagName === "INPUT") {
+                    setTimeout(() => firstMissing.focus({ preventScroll: true }), 350);
+                }
+                return false;
+            }
+
+            hideIncompleteWarning();
+            return true;
+        }
+
+        // ==========================================
+        // LOCK CONTROLS AFTER GRADING
+        // ==========================================
+
+        function lockAllControls() {
+            isSubmittedAndLocked = true;
+            document.getElementById("studentName").disabled = true;
+            document.getElementById("g1-reset-btn").disabled = true;
+            document.getElementById("g5-reset-btn").disabled = true;
+
+            document.querySelectorAll(".g1-action-btn, .g1-placed-btn, .g2-btn, .g3-token, .g4-tile, .g4-reset-btn, .g5-card").forEach((btn) => {
+                btn.disabled = true;
+                btn.classList.add("cursor-not-allowed");
+            });
+        }
+
+        // ==========================================
+        // TELEGRAM PLAIN-TEXT SENDER (CHUNKED)
+        // ==========================================
+
+        function splitIntoChunks(text, maxLen = 3800) {
+            if (text.length <= maxLen) return [text];
+            const lines = text.split("\n");
+            const chunks = [];
+            let current = "";
+            for (const line of lines) {
+                if ((current + "\n" + line).length > maxLen) {
+                    if (current.trim()) chunks.push(current.trim());
+                    current = line;
+                } else {
+                    current = current ? current + "\n" + line : line;
+                }
+            }
+            if (current.trim()) chunks.push(current.trim());
+            return chunks;
+        }
+
+        async function sendPlainTextToTelegram(messageText) {
+            const chunks = splitIntoChunks(messageText, 3800);
+            const url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage";
+
+            for (const chunk of chunks) {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: chunk
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.description || "Telegram API error");
+                }
+            }
+        }
+
+        // ==========================================
+        // GRADING & FORM SUBMISSION
+        // ==========================================
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById("submit-btn");
+            const submitBtnText = document.getElementById("submit-btn-text");
+            const resultBanner = document.getElementById("result-banner");
+            const resultTitle = document.getElementById("result-title");
+            const resultMessage = document.getElementById("result-message");
+
+            if (isSubmittedAndLocked && !lastPreparedReport) {
+                return;
+            }
+
+            if (!lastPreparedReport) {
+                if (!validateAll()) {
+                    return;
+                }
+
+                const studentName = document.getElementById("studentName").value.trim();
+
+                // --- Grade Game 1: Group Sort (6 pts) ---
+                let g1Score = 0;
+                g1Graded = {};
+                const g1Mistakes = [];
+                g1Data.forEach((item) => {
+                    const isCorrect = g1Placed[item.id] === item.category;
+                    g1Graded[item.id] = isCorrect;
+                    if (isCorrect) {
+                        g1Score++;
+                    } else {
+                        g1Mistakes.push('  - "' + item.text + '" → put in ' + g1Placed[item.id] + " (correct: " + item.category + ")");
+                    }
+                });
+                renderGame1();
+                showScoreBadge("g1-score-badge", g1Score, g1Data.length);
+
+                // --- Grade Game 2: Odd One Out (5 pts) ---
+                let g2Score = 0;
+                const g2Mistakes = [];
+                g2Data.forEach((row) => {
+                    const userVal = g2Selected[row.id];
+                    const isCorrect = userVal === row.odd;
+                    const card = document.getElementById("g2-card-" + row.id);
+                    const fb = document.getElementById("g2-fb-" + row.id);
+
+                    setCardGradeStyle(card, isCorrect);
+                    fb.classList.remove("hidden", "text-emerald-700", "text-rose-700");
+
+                    if (isCorrect) {
+                        g2Score++;
+                        fb.classList.add("text-emerald-700");
+                        fb.textContent = "✓ Correct! (" + row.reason + ")";
+                    } else {
+                        fb.classList.add("text-rose-700");
+                        fb.textContent = "✗ Odd one out: " + row.odd + " (" + row.reason + ")";
+                        g2Mistakes.push("  - Row " + row.id + ": chose " + userVal + " (correct: " + row.odd + ")");
+                    }
+                });
+                showScoreBadge("g2-score-badge", g2Score, g2Data.length);
+
+                // --- Grade Game 3: Bug Hunter (5 pts) ---
+                let g3Score = 0;
+                const g3Mistakes = [];
+                g3Data.forEach((item) => {
+                    const chosenIdx = g3Selected[item.id];
+                    const isCorrect = chosenIdx === item.wrongIdx;
+                    const card = document.getElementById("g3-card-" + item.id);
+                    const fb = document.getElementById("g3-fb-" + item.id);
+
+                    setCardGradeStyle(card, isCorrect);
+                    fb.classList.remove("hidden", "text-emerald-700", "text-rose-700");
+
+                    // Highlight the actual wrong word in emerald if caught, or amber if missed
+                    card.querySelectorAll(".g3-token").forEach((t) => {
+                        const idx = Number(t.dataset.idx);
+                        if (idx === item.wrongIdx && isCorrect) {
+                            t.className = "g3-token px-3 py-1.5 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm sm:text-base font-bold";
+                        } else if (idx === item.wrongIdx && !isCorrect) {
+                            t.className = "g3-token px-3 py-1.5 rounded-xl border-2 border-emerald-600 bg-emerald-100 text-emerald-950 text-sm sm:text-base font-bold";
+                        }
+                    });
+
+                    if (isCorrect) {
+                        g3Score++;
+                        fb.classList.add("text-emerald-700");
+                        fb.textContent = "✓ Bug caught! Fix: " + item.fix;
+                    } else {
+                        fb.classList.add("text-rose-700");
+                        fb.textContent = '✗ The bug was "' + item.tokens[item.wrongIdx] + '" → ' + item.fix;
+                        g3Mistakes.push('  - Bug #' + item.id + ': clicked "' + item.tokens[chosenIdx] + '" (bug: "' + item.tokens[item.wrongIdx] + '")');
+                    }
+                });
+                showScoreBadge("g3-score-badge", g3Score, g3Data.length);
+
+                // --- Grade Game 4: Anagrams (5 pts) ---
+                let g4Score = 0;
+                const g4Mistakes = [];
+                g4Data.forEach((item) => {
+                    const spelled = g4State[item.id].answer.map((t) => t.ch).join("");
+                    const isCorrect = spelled === item.word;
+                    const card = document.getElementById("g4-card-" + item.id);
+                    const fb = document.getElementById("g4-fb-" + item.id);
+
+                    setCardGradeStyle(card, isCorrect);
+                    fb.classList.remove("hidden", "text-emerald-700", "text-rose-700");
+
+                    if (isCorrect) {
+                        g4Score++;
+                        fb.classList.add("text-emerald-700");
+                        fb.textContent = "✓ Decoded: " + item.word;
+                    } else {
+                        fb.classList.add("text-rose-700");
+                        fb.textContent = "✗ Correct word: " + item.word;
+                        g4Mistakes.push("  - #" + item.id + ": spelled " + spelled + " (correct: " + item.word + ")");
+                    }
+                });
+                showScoreBadge("g4-score-badge", g4Score, g4Data.length);
+
+                // --- Grade Game 5: Emergency Timeline (4 pts) ---
+                let g5Score = 0;
+                g5Graded = {};
+                const g5Mistakes = [];
+                g5Data.forEach((item) => {
+                    const chosenStep = g5Order.indexOf(item.id) + 1;
+                    const isCorrect = chosenStep === item.step;
+                    g5Graded[item.id] = isCorrect;
+                    if (isCorrect) {
+                        g5Score++;
+                    } else {
+                        g5Mistakes.push('  - Step ' + item.step + ' was placed at #' + chosenStep);
+                    }
+                });
+                renderGame5();
+                showScoreBadge("g5-score-badge", g5Score, g5Data.length);
+
+                // --- Totals & Breakdown ---
+                const totalScore = g1Score + g2Score + g3Score + g4Score + g5Score;
+                const maxScore = 25;
+                const percent = Math.round((totalScore / maxScore) * 100);
+
+                document.getElementById("result-score").textContent = totalScore + " / " + maxScore;
+                document.getElementById("result-percent").textContent = percent + "%";
+
+                const breakdown = document.getElementById("result-breakdown");
+                breakdown.innerHTML = "";
+                [
+                    { label: "1. Sort", val: g1Score + " / 6" },
+                    { label: "2. Odd Out", val: g2Score + " / 5" },
+                    { label: "3. Bugs", val: g3Score + " / 5" },
+                    { label: "4. Anagrams", val: g4Score + " / 5" },
+                    { label: "5. Timeline", val: g5Score + " / 4" }
+                ].forEach((part) => {
+                    const box = document.createElement("div");
+                    box.className = "bg-white/90 rounded-xl p-2 text-center border border-black/5";
+                    const lbl = document.createElement("div");
+                    lbl.className = "text-slate-500";
+                    lbl.textContent = part.label;
+                    const val = document.createElement("div");
+                    val.className = "font-bold text-slate-900 mt-0.5";
+                    val.textContent = part.val;
+                    box.appendChild(lbl);
+                    box.appendChild(val);
+                    breakdown.appendChild(box);
+                });
+
+                // --- Build Plain-Text Telegram Report ---
+                const reportLines = [
+                    "🎮 Lesson 24: Mars Mission — 5 Mini-Games",
+                    "👤 Student: " + studentName,
+                    "🏆 Total Score: " + totalScore + " / " + maxScore + " (" + percent + "%)",
+                    "",
+                    "1️⃣ Group Sort (Active/Passive): " + g1Score + "/6",
+                    g1Mistakes.length ? g1Mistakes.join("\n") : "  ✅ No mistakes!",
+                    "",
+                    "2️⃣ Odd One Out: " + g2Score + "/5",
+                    g2Mistakes.length ? g2Mistakes.join("\n") : "  ✅ No mistakes!",
+                    "",
+                    "3️⃣ Bug Hunter (Find the Mistake): " + g3Score + "/5",
+                    g3Mistakes.length ? g3Mistakes.join("\n") : "  ✅ No mistakes!",
+                    "",
+                    "4️⃣ Anagram Decoder: " + g4Score + "/5",
+                    g4Mistakes.length ? g4Mistakes.join("\n") : "  ✅ No mistakes!",
+                    "",
+                    "5️⃣ Emergency Timeline: " + g5Score + "/4",
+                    g5Mistakes.length ? g5Mistakes.join("\n") : "  ✅ Perfect order!"
+                ];
+                lastPreparedReport = reportLines.join("\n");
+                lockAllControls();
+            }
+
+            // --- Send Report to Telegram ---
+            submitBtn.disabled = true;
+            submitBtnText.textContent = "Надсилаємо...";
+
+            try {
+                await sendPlainTextToTelegram(lastPreparedReport);
+                lastPreparedReport = null;
+
+                resultBanner.className = "rounded-2xl p-5 sm:p-6 border bg-emerald-50 border-emerald-300 text-emerald-950 transition-all space-y-4";
+                resultTitle.textContent = "Відправлено вчителю ✅";
+                resultMessage.textContent = "Чудова гра! Прокрути сторінку вгору, щоб переглянути свої результати по кожній міні-грі.";
+                submitBtnText.textContent = "Відправлено вчителю ✅";
+            } catch (error) {
+                console.error("Telegram send error:", error);
+                resultBanner.className = "rounded-2xl p-5 sm:p-6 border bg-rose-50 border-rose-300 text-rose-950 transition-all space-y-4";
+                resultTitle.textContent = "Не вдалося надіслати вчителю ⚠️";
+                resultMessage.textContent = "Твої відповіді перевірено вище, але сталася помилка з'єднання. Перевір інтернет і натисни кнопку ще раз.";
+                submitBtn.disabled = false;
+                submitBtnText.textContent = "Спробувати надіслати ще раз";
+            } finally {
+                resultBanner.classList.remove("hidden");
+                resultBanner.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Shuffle and render all 5 mini-games
+            g1Shuffled = shuffleArray(g1Data);
+            g5Shuffled = shuffleArray(g5Data);
+            renderGame1();
+            renderGame2();
+            renderGame3();
+            renderGame4();
+            renderGame5();
+
+            // 2. Reset buttons for Game 1 & Game 5
+            document.getElementById("g1-reset-btn").addEventListener("click", () => {
+                if (isSubmittedAndLocked) return;
+                g1Data.forEach((item) => { g1Placed[item.id] = null; });
+                clearMissing(document.getElementById("g1-tray-wrap"));
+                renderGame1();
+            });
+
+            document.getElementById("g5-reset-btn").addEventListener("click", () => {
+                if (isSubmittedAndLocked) return;
+                g5Order = [];
+                clearMissing(document.getElementById("g5-wrap"));
+                renderGame5();
+            });
+
+            // 3. Collapsible Mission Help Panel
+            const helpToggle = document.getElementById("help-toggle");
+            const helpPanel = document.getElementById("help-panel");
+            const helpChevron = document.getElementById("help-chevron");
+
+            helpToggle.addEventListener("click", () => {
+                const isHidden = helpPanel.classList.toggle("hidden");
+                helpToggle.setAttribute("aria-expanded", String(!isHidden));
+                helpChevron.classList.toggle("rotate-180", !isHidden);
+            });
+
+            // 4. Ukrainian Hint buttons
+            document.querySelectorAll(".hint-toggle-btn").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const targetId = btn.dataset.hintTarget;
+                    const hintBox = document.getElementById(targetId);
+                    if (hintBox) hintBox.classList.toggle("hidden");
+                });
+            });
+
+            // 5. Close incomplete warning toast
+            document.getElementById("close-toast-btn").addEventListener("click", () => {
+                document.getElementById("incomplete-toast").classList.add("hidden");
+            });
+
+            // 6. Clear student name error on input
+            const nameInput = document.getElementById("studentName");
+            nameInput.addEventListener("input", () => {
+                if (nameInput.value.trim()) {
+                    clearMissing(nameInput);
+                    document.getElementById("name-error").classList.add("hidden");
+                }
+            });
+
+            // 7. Auto-fill student name from URL (?name=...)
+            const params = new URLSearchParams(window.location.search);
+            const nameFromUrl = params.get("name");
+            if (nameFromUrl) {
+                nameInput.value = nameFromUrl;
+            }
+
+            // 8. Form submission
+            document.getElementById("homework-form").addEventListener("submit", handleSubmit);
+        });
+    </script>
+</body>
+</html>
